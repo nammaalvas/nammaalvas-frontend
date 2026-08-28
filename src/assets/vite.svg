@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150">
+  <!-- Background -->
+  <rect width="100%" height="100%" rx="15" fill="#800000" />
+  
+  <!-- "ALVA'S" Text -->
+  <text x="50%" y="45%" font-family="Impact, Arial Black, sans-serif" font-size="64" font-weight="bold" fill="#FFD700" text-anchor="middle" dominant-baseline="middle">
+    ALVA'S
+  </text>
+  
+  <!-- Subtext -->
+  <text x="50%" y="75%" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">
+    INSTITUTE OF ENGINEERING &amp; TECHNOLOGY
+  </text>
+  
+  <!-- Decorative Line -->
+  <line x1="50" y1="90%" x2="350" y2="90%" stroke="#FFD700" stroke-width="3" />
+</svg>

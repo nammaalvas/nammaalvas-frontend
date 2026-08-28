@@ -1,0 +1,167 @@
+/* html,
+body,
+#root{
+margin:0;
+padding:0;
+width:100%;
+height:100%;
+} */
+
+/* Global Reset and Brand Theme Core */
+:root {
+  --color-black: #0a0a0a;
+  --color-maroon: #800000;
+  --color-yellow: #ffcc00;
+  --color-orange: #ff9900;
+  --color-orange-dark: #ff5500;
+  --color-white: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-black) !important;
+  background-image: url('./assets/college-bg.webp') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  color: var(--color-white) !important;
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Force global background layout containers to match */
+#root,
+.app-container,
+.main-content {
+  background-color: transparent !important;
+  min-height: 100vh;
+}
+
+/* Global scrollbar styled to brand specifications */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-maroon);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-orange);
+}
+
+/* ==========================================================================
+   GLOBAL INLINE OVERRIDES FOR MAROON, BLACK, YELLOW, ORANGE THEME
+   ========================================================================== */
+
+/* Force all card backgrounds and containers to drop dark blue/indigo tints */
+[style*="background-color: rgb(11, 21, 60)"],
+[style*="background: rgb(11, 21, 60)"],
+.video-player-container,
+.location-sidebar,
+.info-panel,
+.form-panel,
+.info-item,
+.contact-form-container {
+  background-color: #050505 !important;
+  background: #050505 !important;
+  border-color: rgba(128, 0, 0, 0.3) !important;
+}
+
+/* Force all text headers, main descriptions, and stats labels away from blue text */
+[style*="color: rgb(66, 202, 255)"],
+[style*="color: rgb(56, 189, 248)"],
+.info-icon,
+.play-icon,
+.stat-card-icon,
+.stat-icon,
+.feature-icon,
+.faculty-role,
+.form-group label {
+  color: var(--color-orange) !important;
+}
+
+/* Target and swap bright blue action buttons (like 'Dispatch Query' and Active filters) */
+[style*="background-color: rgb(66, 202, 255)"],
+[style*="background: rgb(66, 202, 255)"],
+[style*="background-color: rgb(56, 189, 248)"],
+[style*="background: rgb(56, 189, 248)"],
+.location-item.active,
+.location-item:hover,
+.faculty-avatar,
+.form-btn,
+button[type="submit"] {
+  background: linear-gradient(135deg, var(--color-orange), var(--color-orange-dark)) !important;
+  background-color: var(--color-orange) !important;
+  color: #000000 !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+/* Target internal text nodes inside modified orange buttons to guarantee black text visibility */
+.location-item.active *,
+.location-item:hover *,
+.form-btn,
+button[type="submit"] {
+  color: #000000 !important;
+}
+
+/* Fix the department navigation filter buttons on the Faculty page */
+[style*="background-color: rgb(56, 189, 248)"],
+.faculty-grid-filters button,
+.filter-btn {
+  background: rgba(128, 0, 0, 0.2) !important;
+  color: var(--color-white) !important;
+  border: 1px solid var(--color-maroon) !important;
+}
+
+/* Bright yellow highlight highlight tracking state for the currently active filter option button */
+.filter-btn.active,
+[style*="background-color: rgb(56, 189, 248)"]:first-child {
+  background: linear-gradient(135deg, var(--color-orange), var(--color-orange-dark)) !important;
+  color: #000000 !important;
+  border-color: var(--color-orange) !important;
+}
+
+/* Adjust secondary/unselected items (like inactive virtual tour locations or inactive department filters) */
+[style*="background: rgba(255, 255, 255, 0.05)"],
+.location-item {
+  background: rgba(20, 20, 20, 0.6) !important;
+  border: 1px solid rgba(128, 0, 0, 0.2) !important;
+  color: var(--color-white) !important;
+}
+
+/* ==========================================================================
+   LANGUAGE SWITCHER RESPONSIVE STYLES
+   ========================================================================== */
+
+.language-switcher {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+@media (max-width: 768px) {
+  .language-switcher {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+    padding: 10px !important;
+  }
+
+  .language-switcher span:nth-child(3) {
+    display: none;
+    /* Hide the '|' separator on mobile */
+  }
+}
