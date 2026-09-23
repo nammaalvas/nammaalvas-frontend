@@ -1137,7 +1137,7 @@ export default function Admission() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/admission', {
+      const response = await fetch(`${API_BASE_URL}/api/admission`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1164,7 +1164,7 @@ export default function Admission() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/appointment', {
+      const response = await fetch(`${API_BASE_URL}/api/appointment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1196,7 +1196,7 @@ export default function Admission() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/appointment', {
+      const response = await fetch(`${API_BASE_URL}/api/appointment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
