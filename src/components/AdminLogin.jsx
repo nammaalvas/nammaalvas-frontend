@@ -105,7 +105,7 @@ export default function AdminLogin() {
           </div>
         )}
 
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} autoComplete="off">
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', fontSize: '13px', color: '#ff9900', fontWeight: '600', marginBottom: '8px' }}>
               Admin Email Address
@@ -114,9 +114,12 @@ export default function AdminLogin() {
               <FaEnvelope style={{ position: 'absolute', left: '16px', top: '16px', color: '#a3a3a3', fontSize: '14px' }} />
               <input
                 type="email"
+                name="admin_login_email"
+                id="admin_login_email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter email address"
+                autoComplete="off"
                 required
                 style={{
                   width: '100%',
@@ -141,9 +144,12 @@ export default function AdminLogin() {
               <FaLock style={{ position: 'absolute', left: '16px', top: '16px', color: '#a3a3a3', fontSize: '14px' }} />
               <input
                 type="password"
+                name="admin_login_password"
+                id="admin_login_password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
+                autoComplete="new-password"
                 required
                 style={{
                   width: '100%',

@@ -1019,14 +1019,125 @@ img, video, iframe {
   form {
     padding: 15px !important;
   }
-  .whatsapp-float-btn {
+}
+
+/* Floating Action Buttons System */
+.appointment-float-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff9900, #ff5500);
+  color: #ffffff;
+  border: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(255, 153, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 9999;
+  cursor: pointer;
+}
+
+.appointment-float-btn .appointment-icon {
+  font-size: 26px;
+}
+
+.whatsapp-float-btn {
+  position: fixed;
+  bottom: 95px; /* Clean 14px gap above appointment-float-btn (25px + 56px + 14px) */
+  right: 25px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 9999;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.whatsapp-float-btn .whatsapp-icon {
+  font-size: 32px;
+}
+
+.float-btn-tooltip {
+  position: absolute;
+  right: 70px;
+  background: rgba(15, 15, 15, 0.95);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255, 153, 0, 0.4);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.whatsapp-tooltip {
+  border: 1px solid rgba(37, 211, 102, 0.4);
+}
+
+@media (max-width: 600px) {
+  .appointment-float-btn {
     bottom: 16px !important;
     right: 16px !important;
     width: 48px !important;
     height: 48px !important;
   }
-  .whatsapp-float-btn svg {
+  .appointment-float-btn .appointment-icon {
+    font-size: 22px !important;
+  }
+  .whatsapp-float-btn {
+    bottom: 74px !important; /* Stacked cleanly above appointment button (16px + 48px + 10px gap) */
+    right: 16px !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+  .whatsapp-float-btn .whatsapp-icon {
     font-size: 26px !important;
+  }
+  .float-btn-tooltip {
+    right: 58px !important;
+    font-size: 11px !important;
+    padding: 4px 10px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .appointment-float-btn {
+    bottom: 12px !important;
+    right: 12px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+  .appointment-float-btn .appointment-icon {
+    font-size: 20px !important;
+  }
+  .whatsapp-float-btn {
+    bottom: 64px !important; /* 12px + 44px + 8px gap */
+    right: 12px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+  .whatsapp-float-btn .whatsapp-icon {
+    font-size: 24px !important;
+  }
+  .float-btn-tooltip {
+    right: 52px !important;
+    font-size: 10.5px !important;
+    padding: 3px 8px !important;
   }
 }
 
@@ -1098,4 +1209,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1) !important;
   -webkit-filter: invert(1) !important;
   cursor: pointer !important;
+}
+
+/* Prevent browser autofill background overrides and auto-population styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(20, 20, 20, 0.95) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
