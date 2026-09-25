@@ -121,6 +121,15 @@ export default function VirtualTour() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isAutoRotate, setIsAutoRotate] = useState(false);
   const [showCarousel, setShowCarousel] = useState(true);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResizeWindow = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResizeWindow);
+    return () => window.removeEventListener("resize", handleResizeWindow);
+  }, []);
 
   // Video specific state
   const [isPlaying, setIsPlaying] = useState(false);
@@ -230,6 +239,9 @@ export default function VirtualTour() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.domElement.style.width = "100%";
+    renderer.domElement.style.height = "100%";
+    renderer.domElement.style.display = "block";
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -278,22 +290,35 @@ export default function VirtualTour() {
     };
     animate();
 
-    // Handle Container Resize
+    // Handle Container Resize with ResizeObserver & Window Events
     const handleResize = () => {
-      if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
+      if (!container || !camera || !renderer) return;
+      const targetContainer = playerContainerRef.current || container;
+      const w = targetContainer.clientWidth || window.innerWidth;
+      const h = targetContainer.clientHeight || window.innerHeight;
       if (w > 0 && h > 0) {
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
+        renderer.setSize(w, h, false);
       }
     };
+
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+    resizeObserver.observe(container);
+    if (playerContainerRef.current) {
+      resizeObserver.observe(playerContainerRef.current);
+    }
+
     window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
       controls.dispose();
       renderer.dispose();
       if (container.contains(renderer.domElement)) {
@@ -460,23 +485,88 @@ export default function VirtualTour() {
 
   useEffect(() => {
     const handleFsChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      setIsFullscreen(isFs);
+
+      const triggerCanvasResize = () => {
+        if (cameraRef.current && rendererRef.current) {
+          const target = playerContainerRef.current || canvasContainerRef.current;
+          if (target) {
+            const w = target.clientWidth || window.innerWidth;
+            const h = target.clientHeight || window.innerHeight;
+            if (w > 0 && h > 0) {
+              cameraRef.current.aspect = w / h;
+              cameraRef.current.updateProjectionMatrix();
+              rendererRef.current.setSize(w, h, false);
+            }
+          }
+        }
+      };
+
+      triggerCanvasResize();
+      setTimeout(triggerCanvasResize, 50);
+      setTimeout(triggerCanvasResize, 200);
+      setTimeout(triggerCanvasResize, 500);
     };
+
     document.addEventListener("fullscreenchange", handleFsChange);
-    return () => document.removeEventListener("fullscreenchange", handleFsChange);
+    document.addEventListener("webkitfullscreenchange", handleFsChange);
+    window.addEventListener("orientationchange", handleFsChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFsChange);
+      document.removeEventListener("webkitfullscreenchange", handleFsChange);
+      window.removeEventListener("orientationchange", handleFsChange);
+    };
   }, []);
+
+  // Also trigger resize when isFullscreen state updates in React
+  useEffect(() => {
+    const triggerCanvasResize = () => {
+      if (cameraRef.current && rendererRef.current) {
+        const target = playerContainerRef.current || canvasContainerRef.current;
+        if (target) {
+          const w = target.clientWidth || window.innerWidth;
+          const h = target.clientHeight || window.innerHeight;
+          if (w > 0 && h > 0) {
+            cameraRef.current.aspect = w / h;
+            cameraRef.current.updateProjectionMatrix();
+            rendererRef.current.setSize(w, h, false);
+          }
+        }
+      }
+    };
+
+    triggerCanvasResize();
+    const t1 = setTimeout(triggerCanvasResize, 50);
+    const t2 = setTimeout(triggerCanvasResize, 200);
+    const t3 = setTimeout(triggerCanvasResize, 500);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [isFullscreen]);
 
   return (
     <div style={{
       width: "100%",
       maxWidth: "1380px",
       margin: "0 auto",
-      padding: "clamp(80px, 10vh, 100px) clamp(12px, 3vw, 24px) 60px clamp(12px, 3vw, 24px)",
+      padding: isMobile ? "12px 12px 40px 12px" : "20px 24px 60px 24px",
       color: "#ffffff",
       boxSizing: "border-box"
     }}>
-      {/* Back Button */}
-      <div style={{ marginBottom: "16px" }}>
+      {/* Top Header Actions Bar */}
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "16px",
+        flexWrap: "wrap",
+        gap: "12px"
+      }}>
         <button
           type="button"
           onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}
@@ -487,9 +577,9 @@ export default function VirtualTour() {
             background: "linear-gradient(135deg, rgba(255, 153, 0, 0.15), rgba(128, 0, 0, 0.25))",
             color: "#ffcc00",
             border: "1px solid rgba(255, 204, 0, 0.4)",
-            padding: "9px 20px",
+            padding: isMobile ? "7px 14px" : "9px 20px",
             borderRadius: "25px",
-            fontSize: "14px",
+            fontSize: isMobile ? "13px" : "14px",
             fontWeight: "600",
             cursor: "pointer",
             transition: "all 0.3s ease",
@@ -506,6 +596,32 @@ export default function VirtualTour() {
           }}
         >
           <FaArrowLeft /> {isKn ? "ಹಿಂದೆ" : "Back"}
+        </button>
+
+        {/* Prominent Full Screen 360° Access Button */}
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "linear-gradient(135deg, #ff9900, #ff5500)",
+            color: "#000000",
+            border: "none",
+            padding: isMobile ? "8px 14px" : "10px 20px",
+            borderRadius: "20px",
+            fontSize: isMobile ? "12px" : "14px",
+            fontWeight: "700",
+            cursor: "pointer",
+            boxShadow: "0 4px 20px rgba(255, 153, 0, 0.4)",
+            transition: "all 0.25s ease"
+          }}
+        >
+          {isFullscreen ? <FaCompress style={{ fontSize: "14px" }} /> : <FaExpand style={{ fontSize: "14px" }} />}
+          {isFullscreen 
+            ? (isKn ? "ಪೂರ್ಣ ಪರದೆ ನಿರ್ಗಮಿಸಿ" : "Exit Full Screen") 
+            : (isKn ? "ಪೂರ್ಣ ಪರದೆ 360° ವೀಕ್ಷಣೆ" : "FULL SCREEN 360° ACCESS")}
         </button>
       </div>
 
@@ -528,7 +644,7 @@ export default function VirtualTour() {
             background: "rgba(255, 153, 0, 0.12)",
             border: "1px solid rgba(255, 153, 0, 0.4)",
             color: "#ffcc00",
-            fontSize: "12px",
+            fontSize: isMobile ? "10.5px" : "12px",
             fontWeight: "700",
             letterSpacing: "1px",
             marginBottom: "10px",
@@ -539,7 +655,7 @@ export default function VirtualTour() {
           </div>
 
           <h1 style={{
-            fontSize: "clamp(1.8rem, 4.5vw, 2.8rem)",
+            fontSize: "clamp(1.6rem, 4.5vw, 2.8rem)",
             fontWeight: "800",
             margin: "0 0 8px 0",
             background: "linear-gradient(135deg, #ffffff 0%, #ffcc00 50%, #ff5500 100%)",
@@ -564,11 +680,11 @@ export default function VirtualTour() {
           gap: "10px",
           background: "linear-gradient(135deg, rgba(255, 204, 0, 0.15), rgba(255, 85, 0, 0.15))",
           border: "1px solid rgba(255, 204, 0, 0.5)",
-          padding: "10px 18px",
+          padding: isMobile ? "8px 14px" : "10px 18px",
           borderRadius: "16px",
           boxShadow: "0 8px 25px rgba(255, 153, 0, 0.15)"
         }}>
-          <FaGlobe style={{ fontSize: "24px", color: "#ffcc00" }} />
+          <FaGlobe style={{ fontSize: isMobile ? "20px" : "24px", color: "#ffcc00" }} />
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: "11px", fontWeight: "800", color: "#ffffff", letterSpacing: "1px" }}>STREET VIEW 360°</span>
             <span style={{ fontSize: "10px", color: "#ffcc00" }}>{activeLoc.coords}</span>
@@ -585,9 +701,9 @@ export default function VirtualTour() {
             : {
                 position: "relative",
                 width: "100%",
-                aspectRatio: "16 / 9",
-                maxHeight: "80vh",
-                borderRadius: "24px",
+                height: isMobile ? "clamp(420px, 68vh, 600px)" : "clamp(480px, 75vh, 680px)",
+                maxHeight: "85vh",
+                borderRadius: isMobile ? "16px" : "24px",
                 overflow: "hidden",
                 border: "2px solid rgba(255, 153, 0, 0.5)",
                 background: "#000000",
@@ -614,7 +730,7 @@ export default function VirtualTour() {
         <div 
           ref={canvasContainerRef} 
           onClick={handleCanvasClick}
-          style={{ width: "100%", height: "100%", cursor: "grab" }}
+          style={{ width: "100%", height: "100%", cursor: "grab", position: "relative" }}
           onMouseDown={(e) => { e.currentTarget.style.cursor = "grabbing"; }}
           onMouseUp={(e) => { e.currentTarget.style.cursor = "grab"; }}
         />
@@ -622,53 +738,61 @@ export default function VirtualTour() {
         {/* Google Maps Style Top-Left Location Info Card */}
         <div style={{
           position: "absolute",
-          top: "20px",
-          left: "20px",
+          top: isMobile ? "10px" : "20px",
+          left: isMobile ? "10px" : "20px",
           zIndex: 40,
-          background: "rgba(12, 12, 14, 0.85)",
+          background: "rgba(10, 10, 14, 0.88)",
           backdropFilter: "blur(12px)",
           border: "1px solid rgba(255, 204, 0, 0.4)",
-          borderRadius: "16px",
-          padding: "12px 18px",
-          maxWidth: "320px",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.6)"
+          borderRadius: isMobile ? "10px" : "16px",
+          padding: isMobile ? "6px 10px" : "12px 18px",
+          maxWidth: isMobile ? "calc(100% - 64px)" : "320px",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.7)",
+          boxSizing: "border-box"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-            <FaMapMarkerAlt style={{ color: "#ff9900", fontSize: "14px" }} />
-            <span style={{ fontSize: "11px", fontWeight: "800", color: "#ffcc00", letterSpacing: "1px", textTransform: "uppercase" }}>
-              {activeLoc.coords} • Elev {activeLoc.elevation}
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "2px" }}>
+            <FaMapMarkerAlt style={{ color: "#ff9900", fontSize: isMobile ? "11px" : "14px" }} />
+            <span style={{ fontSize: isMobile ? "9.5px" : "11px", fontWeight: "800", color: "#ffcc00", letterSpacing: "0.5px", textTransform: "uppercase" }}>
+              {activeLoc.coords} {!isMobile && `• Elev ${activeLoc.elevation}`}
             </span>
           </div>
-          <h2 style={{ fontSize: "16px", fontWeight: "800", color: "#ffffff", margin: "0 0 4px 0" }}>
+          <h2 style={{ fontSize: isMobile ? "13px" : "16px", fontWeight: "800", color: "#ffffff", margin: "0 0 2px 0", lineHeight: 1.2 }}>
             {isKn ? activeLoc.titleKn : activeLoc.title}
           </h2>
-          <p style={{ fontSize: "12px", color: "#a3a3a3", margin: 0, lineHeight: 1.4 }}>
-            {isKn ? activeLoc.descKn : activeLoc.desc}
-          </p>
+          {!isMobile && (
+            <p style={{
+              fontSize: "12px",
+              color: "#a3a3a3",
+              margin: 0,
+              lineHeight: 1.35
+            }}>
+              {isKn ? activeLoc.descKn : activeLoc.desc}
+            </p>
+          )}
         </div>
 
         {/* Google Maps Style Upper-Right Toolbar & Dynamic Compass */}
         <div style={{
           position: "absolute",
-          top: "20px",
-          right: "20px",
-          zIndex: 40,
+          top: isMobile ? "10px" : "20px",
+          right: isMobile ? "10px" : "20px",
+          zIndex: 45,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "10px"
+          gap: isMobile ? "5px" : "10px"
         }}>
           {/* Dynamic Rotating Compass Dial */}
           <div 
             onClick={handleResetNorth}
             title="Reset North Orientation"
             style={{
-              width: "48px",
-              height: "48px",
+              width: isMobile ? "34px" : "48px",
+              height: isMobile ? "34px" : "48px",
               borderRadius: "50%",
-              background: "rgba(12, 12, 14, 0.85)",
+              background: "rgba(10, 10, 14, 0.88)",
               backdropFilter: "blur(12px)",
-              border: "1px solid rgba(255, 204, 0, 0.5)",
+              border: "1.5px solid rgba(255, 204, 0, 0.6)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -684,7 +808,7 @@ export default function VirtualTour() {
               alignItems: "center",
               justifyContent: "center"
             }}>
-              <FaCompass style={{ fontSize: "24px", color: "#ff9900" }} />
+              <FaCompass style={{ fontSize: isMobile ? "18px" : "24px", color: "#ff9900" }} />
             </div>
           </div>
 
@@ -692,10 +816,10 @@ export default function VirtualTour() {
           <div style={{
             display: "flex",
             flexDirection: "column",
-            background: "rgba(12, 12, 14, 0.85)",
+            background: "rgba(10, 10, 14, 0.88)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(255, 204, 0, 0.4)",
-            borderRadius: "14px",
+            borderRadius: isMobile ? "8px" : "14px",
             overflow: "hidden",
             boxShadow: "0 6px 20px rgba(0,0,0,0.6)"
           }}>
@@ -703,14 +827,15 @@ export default function VirtualTour() {
               type="button"
               onClick={handleZoomIn}
               title="Zoom In (+)"
+              aria-label="Zoom In"
               style={{
                 background: "none",
                 border: "none",
                 borderBottom: "1px solid rgba(255, 255, 255, 0.15)",
                 color: "#ffffff",
-                padding: "10px 12px",
+                padding: isMobile ? "6px 8px" : "10px 12px",
                 cursor: "pointer",
-                fontSize: "14px",
+                fontSize: isMobile ? "11px" : "14px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center"
@@ -722,13 +847,14 @@ export default function VirtualTour() {
               type="button"
               onClick={handleZoomOut}
               title="Zoom Out (-)"
+              aria-label="Zoom Out"
               style={{
                 background: "none",
                 border: "none",
                 color: "#ffffff",
-                padding: "10px 12px",
+                padding: isMobile ? "6px 8px" : "10px 12px",
                 cursor: "pointer",
-                fontSize: "14px",
+                fontSize: isMobile ? "11px" : "14px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center"
@@ -743,16 +869,17 @@ export default function VirtualTour() {
             type="button"
             onClick={toggleAutoRotate}
             title={isAutoRotate ? "Stop Auto Tour" : "Start Auto Tour"}
+            aria-label="Toggle Auto Rotation"
             style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "12px",
-              background: isAutoRotate ? "linear-gradient(135deg, #ff9900, #ff5500)" : "rgba(12, 12, 14, 0.85)",
+              width: isMobile ? "32px" : "40px",
+              height: isMobile ? "32px" : "40px",
+              borderRadius: isMobile ? "8px" : "12px",
+              background: isAutoRotate ? "linear-gradient(135deg, #ff9900, #ff5500)" : "rgba(10, 10, 14, 0.88)",
               backdropFilter: "blur(12px)",
               border: "1px solid rgba(255, 204, 0, 0.4)",
               color: isAutoRotate ? "#000000" : "#ffcc00",
               cursor: "pointer",
-              fontSize: "14px",
+              fontSize: isMobile ? "11px" : "14px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -762,90 +889,95 @@ export default function VirtualTour() {
             <FaSync style={{ animation: isAutoRotate ? "spin 4s linear infinite" : "none" }} />
           </button>
 
-          {/* Fullscreen Toggle */}
+          {/* Fullscreen Toggle Button */}
           <button
             type="button"
             onClick={toggleFullscreen}
-            title="Fullscreen"
+            title={isFullscreen ? "Exit Fullscreen Mode" : "Full Screen Mode"}
+            aria-label="Toggle Fullscreen Mode"
             style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "12px",
-              background: "rgba(12, 12, 14, 0.85)",
+              width: isMobile ? "32px" : "40px",
+              height: isMobile ? "32px" : "40px",
+              borderRadius: isMobile ? "8px" : "12px",
+              background: "linear-gradient(135deg, rgba(255, 153, 0, 0.35), rgba(255, 85, 0, 0.35))",
               backdropFilter: "blur(12px)",
-              border: "1px solid rgba(255, 204, 0, 0.4)",
-              color: "#ffffff",
+              border: "1.5px solid #ffcc00",
+              color: "#ffcc00",
               cursor: "pointer",
-              fontSize: "14px",
+              fontSize: isMobile ? "12px" : "15px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 6px 20px rgba(0,0,0,0.6)"
+              boxShadow: "0 6px 25px rgba(255, 153, 0, 0.35)"
             }}
           >
             {isFullscreen ? <FaCompress /> : <FaExpand />}
           </button>
         </div>
 
-        {/* Drag Hint Center Overlay */}
-        <div style={{
-          position: "absolute",
-          top: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 30,
-          background: "rgba(0, 0, 0, 0.65)",
-          backdropFilter: "blur(8px)",
-          border: "1px solid rgba(255, 204, 0, 0.4)",
-          color: "#ffcc00",
-          padding: "6px 16px",
-          borderRadius: "20px",
-          fontSize: "12px",
-          fontWeight: "600",
-          pointerEvents: "none",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px"
-        }}>
-          <FaGlobe />
-          {isKn ? "ಮೌಸ್ ಎಳೆಯಿರಿ 360° ನೋಡಲು • ನಕ್ಷೆ ಸ್ಥಳಗಳನ್ನು ಒತ್ತಿ" : "🖱️ Drag mouse to look 360° • Click hotspots to navigate"}
-        </div>
+        {/* Drag Hint Center Overlay (Desktop only to prevent mobile clutter) */}
+        {!isMobile && (
+          <div style={{
+            position: "absolute",
+            top: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 30,
+            background: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid rgba(255, 204, 0, 0.4)",
+            color: "#ffcc00",
+            padding: "6px 16px",
+            borderRadius: "20px",
+            fontSize: "12px",
+            fontWeight: "600",
+            pointerEvents: "none",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+          }}>
+            <FaGlobe />
+            {isKn ? "ಮೌಸ್ ಎಳೆಯಿರಿ 360° ನೋಡಲು • ನಕ್ಷೆ ಸ್ಥಳಗಳನ್ನು ಒತ್ತಿ" : "🖱️ Drag mouse to look 360° • Click hotspots to navigate"}
+          </div>
+        )}
 
         {/* Video Mode Bar (Only visible when active location is video_tour) */}
         {activeLoc.type === "video" && (
           <div style={{
             position: "absolute",
-            bottom: showCarousel ? "110px" : "20px",
+            bottom: showCarousel ? (isMobile ? "54px" : "110px") : (isMobile ? "8px" : "20px"),
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 45,
-            background: "rgba(12, 12, 14, 0.9)",
+            background: "rgba(10, 10, 14, 0.92)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(255, 204, 0, 0.5)",
-            borderRadius: "20px",
-            padding: "10px 20px",
+            borderRadius: isMobile ? "12px" : "20px",
+            padding: isMobile ? "5px 10px" : "10px 20px",
             display: "flex",
             alignItems: "center",
-            gap: "16px",
+            gap: isMobile ? "6px" : "16px",
             boxShadow: "0 10px 30px rgba(0,0,0,0.8)",
-            width: "calc(100% - 60px)",
+            width: isMobile ? "calc(100% - 12px)" : "calc(100% - 60px)",
             maxWidth: "600px"
           }}>
             <button
               type="button"
               onClick={togglePlay}
+              aria-label={isPlaying ? "Pause Video" : "Play Video"}
               style={{
                 background: "linear-gradient(135deg, #ff9900, #ff5500)",
                 border: "none",
                 borderRadius: "50%",
-                width: "36px",
-                height: "36px",
+                width: isMobile ? "28px" : "36px",
+                height: isMobile ? "28px" : "36px",
                 color: "#000000",
-                fontSize: "14px",
+                fontSize: isMobile ? "11px" : "14px",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center"
+                justifyContent: "center",
+                flexShrink: 0
               }}
             >
               {isPlaying ? <FaPause /> : <FaPlay style={{ marginLeft: "2px" }} />}
@@ -859,21 +991,22 @@ export default function VirtualTour() {
               onChange={handleSeek}
               style={{
                 flex: 1,
-                height: "6px",
+                height: "5px",
                 borderRadius: "4px",
                 accentColor: "#ff9900",
                 cursor: "pointer"
               }}
             />
 
-            <span style={{ fontSize: "12px", color: "#ffffff", fontWeight: "600" }}>
+            <span style={{ fontSize: isMobile ? "9.5px" : "12px", color: "#ffffff", fontWeight: "600", whiteSpace: "nowrap" }}>
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
 
             <button
               type="button"
               onClick={toggleMute}
-              style={{ background: "none", border: "none", color: "#ffffff", cursor: "pointer", fontSize: "16px" }}
+              aria-label={isMuted ? "Unmute" : "Mute"}
+              style={{ background: "none", border: "none", color: "#ffffff", cursor: "pointer", fontSize: isMobile ? "13px" : "16px", flexShrink: 0 }}
             >
               {isMuted || volume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
             </button>
@@ -884,39 +1017,47 @@ export default function VirtualTour() {
         {showCarousel && (
           <div style={{
             position: "absolute",
-            bottom: "16px",
-            left: "50%",
-            transform: "translateX(-50%)",
+            bottom: isMobile ? "8px" : "16px",
+            left: isMobile ? "6px" : "50%",
+            transform: isMobile ? "none" : "translateX(-50%)",
             zIndex: 40,
-            width: "calc(100% - 32px)",
+            width: isMobile ? "calc(100% - 12px)" : "calc(100% - 32px)",
             maxWidth: "1100px",
-            background: "rgba(10, 10, 12, 0.88)",
+            background: "rgba(10, 10, 12, 0.92)",
             backdropFilter: "blur(16px)",
             border: "1px solid rgba(255, 204, 0, 0.4)",
-            borderRadius: "20px",
-            padding: "10px 14px",
+            borderRadius: isMobile ? "12px" : "20px",
+            padding: isMobile ? "5px 6px" : "10px 14px",
             display: "flex",
             alignItems: "center",
-            gap: "12px",
-            overflowX: "auto",
-            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.8)",
-            scrollbarWidth: "thin"
+            gap: isMobile ? "6px" : "12px",
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.85)",
+            boxSizing: "border-box"
           }}>
             <div style={{
               display: "flex",
               alignItems: "center",
-              gap: "6px",
-              paddingRight: "10px",
+              gap: "4px",
+              paddingRight: isMobile ? "5px" : "10px",
               borderRight: "1px solid rgba(255, 255, 255, 0.15)",
               color: "#ffcc00",
-              fontSize: "12px",
+              fontSize: isMobile ? "10px" : "12px",
               fontWeight: "700",
               whiteSpace: "nowrap"
             }}>
-              <FaLayerGroup /> {isKn ? "ಸ್ಥಳಗಳು:" : "Locations:"}
+              <FaLayerGroup /> {!isMobile && (isKn ? "ಸ್ಥಳಗಳು:" : "Locations:")}
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, overflowX: "auto" }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: isMobile ? "6px" : "10px",
+              flex: 1,
+              overflowX: "auto",
+              scrollSnapType: "x mandatory",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none"
+            }}>
               {CAMPUS_LOCATIONS.map((loc, idx) => {
                 const isActive = idx === activeLocationIndex;
                 return (
@@ -925,23 +1066,24 @@ export default function VirtualTour() {
                     onClick={() => switchLocation(idx)}
                     style={{
                       flex: "0 0 auto",
+                      scrollSnapAlign: "start",
                       display: "flex",
                       alignItems: "center",
-                      gap: "10px",
+                      gap: isMobile ? "5px" : "10px",
                       background: isActive 
                         ? "linear-gradient(135deg, rgba(255, 153, 0, 0.35), rgba(255, 85, 0, 0.35))" 
                         : "rgba(255, 255, 255, 0.06)",
                       border: isActive ? "1.5px solid #ffcc00" : "1px solid rgba(255, 255, 255, 0.12)",
-                      borderRadius: "14px",
-                      padding: "6px 12px 6px 6px",
+                      borderRadius: isMobile ? "8px" : "14px",
+                      padding: isMobile ? "3px 6px 3px 3px" : "6px 12px 6px 6px",
                       cursor: "pointer",
                       transition: "all 0.25s ease"
                     }}
                   >
                     <div style={{
-                      width: "42px",
-                      height: "32px",
-                      borderRadius: "8px",
+                      width: isMobile ? "32px" : "42px",
+                      height: isMobile ? "24px" : "32px",
+                      borderRadius: "4px",
                       overflow: "hidden",
                       background: "#000"
                     }}>
@@ -953,14 +1095,14 @@ export default function VirtualTour() {
                     </div>
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       <span style={{
-                        fontSize: "12px",
+                        fontSize: isMobile ? "10px" : "12px",
                         fontWeight: isActive ? "800" : "600",
                         color: isActive ? "#ffcc00" : "#ffffff",
                         whiteSpace: "nowrap"
                       }}>
                         {isKn ? loc.titleKn : loc.title}
                       </span>
-                      <span style={{ fontSize: "10px", color: "#a3a3a3", whiteSpace: "nowrap" }}>
+                      <span style={{ fontSize: isMobile ? "8.5px" : "10px", color: "#a3a3a3", whiteSpace: "nowrap" }}>
                         {loc.type === "video" ? "🎬 360° Video" : "📷 360° Photo"}
                       </span>
                     </div>
@@ -978,21 +1120,22 @@ export default function VirtualTour() {
           title={showCarousel ? "Hide Locations Carousel" : "Show Locations Carousel"}
           style={{
             position: "absolute",
-            bottom: showCarousel ? "86px" : "16px",
-            right: "20px",
+            bottom: showCarousel ? (isMobile ? "54px" : "86px") : (isMobile ? "8px" : "16px"),
+            right: isMobile ? "8px" : "20px",
             zIndex: 45,
-            background: "rgba(12, 12, 14, 0.9)",
+            background: "rgba(10, 10, 14, 0.92)",
             backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255, 204, 0, 0.4)",
-            borderRadius: "10px",
+            border: "1.5px solid rgba(255, 204, 0, 0.5)",
+            borderRadius: "8px",
             color: "#ffcc00",
-            padding: "4px 10px",
-            fontSize: "11px",
+            padding: isMobile ? "2px 6px" : "4px 10px",
+            fontSize: isMobile ? "9.5px" : "11px",
             fontWeight: "700",
-            cursor: "pointer"
+            cursor: "pointer",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.6)"
           }}
         >
-          <FaLayerGroup /> {showCarousel ? "Hide Bar" : "Show Street Locations"}
+          <FaLayerGroup /> {showCarousel ? "Hide Bar" : "Locations"}
         </button>
       </div>
     </div>

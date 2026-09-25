@@ -10,13 +10,14 @@ export default function Placements() {
   const [zoomedImage, setZoomedImage] = useState(null);
   
   const metrics = [
-    { label: t("place_high_ctc"), value: "₹21.00 LPA", desc: t("place_high_desc") },
-    { label: t("place_sec_ctc"), value: "₹20.00 LPA", desc: t("place_sec_desc") },
+    { label: t("place_high_ctc"), value: "₹36.00 LPA", desc: t("place_high_desc") },
+    { label: t("place_sec_ctc"), value: "₹21.00 LPA", desc: t("place_sec_desc") },
     { label: t("place_avg_ctc"), value: "₹4.20 LPA", desc: t("place_avg_desc") },
     { label: t("place_corp"), value: "325+ Firms", desc: t("place_corp_desc") }
   ];
 
   const companies = [
+    { name: "Visa", logoUrl: "/logos/visa.svg", featured: true },
     { name: "Accord", logoUrl: "/logos/accord.webp", featured: true },
     { name: "Nandi Toyota", logoUrl: "/logos/nandi-toyota.webp", featured: true },
     { name: "iWave Systems", logoUrl: "/logos/iwave.webp", featured: true },
@@ -564,16 +565,16 @@ export default function Placements() {
 
         {/* Teaser Preview Grid (4 Posters) */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", maxWidth: "1000px", margin: "0 auto" }}>
-          {["p1.webp", "p2.webp", "p3.webp", "p4.webp"].map((src, idx) => (
+          {["visa_36lpa.jpg", "p1.webp", "p2.webp", "p3.webp"].map((src, idx) => (
             <div 
               key={idx}
-              onClick={() => setIsMilestonesModalOpen(true)}
+              onClick={() => setZoomedImage(`/placements/${src}`)}
               style={{
                 width: "100%",
                 height: "260px",
                 borderRadius: "14px",
-                border: "2px solid rgba(255, 204, 0, 0.3)",
-                boxShadow: "0 8px 20px rgba(0,0,0,0.6)",
+                border: src === "visa_36lpa.jpg" ? "2px solid #ffcc00" : "2px solid rgba(255, 204, 0, 0.3)",
+                boxShadow: src === "visa_36lpa.jpg" ? "0 8px 25px rgba(255, 204, 0, 0.4)" : "0 8px 20px rgba(0,0,0,0.6)",
                 transition: "all 0.3s ease",
                 cursor: "pointer",
                 backgroundColor: "#ffffff",
@@ -583,14 +584,33 @@ export default function Placements() {
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-6px)";
                 e.currentTarget.style.borderColor = "#ffcc00";
-                e.currentTarget.style.boxShadow = "0 12px 30px rgba(255, 204, 0, 0.3)";
+                e.currentTarget.style.boxShadow = "0 12px 30px rgba(255, 204, 0, 0.4)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.borderColor = "rgba(255, 204, 0, 0.3)";
-                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.6)";
+                e.currentTarget.style.borderColor = src === "visa_36lpa.jpg" ? "#ffcc00" : "rgba(255, 204, 0, 0.3)";
+                e.currentTarget.style.boxShadow = src === "visa_36lpa.jpg" ? "0 8px 25px rgba(255, 204, 0, 0.4)" : "0 8px 20px rgba(0,0,0,0.6)";
               }}
             >
+              {src === "visa_36lpa.jpg" && (
+                <div style={{
+                  position: "absolute",
+                  top: "10px",
+                  left: "10px",
+                  background: "linear-gradient(135deg, #ffcc00, #ff9900)",
+                  color: "#000",
+                  fontWeight: "800",
+                  fontSize: "11px",
+                  padding: "4px 8px",
+                  borderRadius: "6px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  zIndex: 2
+                }}>
+                  ⭐ 36 LPA • VISA
+                </div>
+              )}
               <img 
                 src={`/placements/${src}`} 
                 alt={`Placement preview ${idx + 1}`} 
@@ -699,6 +719,7 @@ export default function Placements() {
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px" }}>
                 {[
+                  "visa_36lpa.jpg",
                   "p1.webp", "p2.webp", "p3.webp", "p4.webp", "p6.webp", "p7.webp", "p8.webp", 
                   "p9.webp", "p10.webp", "p11.webp", "p12.webp", "p13.webp", "p14.webp", 
                   "p15.webp", "p16.webp", "p17.webp", "p18.webp", "p19.webp", "p20.webp",
@@ -711,7 +732,8 @@ export default function Placements() {
                       width: "100%",
                       height: "280px",
                       borderRadius: "12px",
-                      border: "1px solid rgba(255, 204, 0, 0.3)",
+                      border: src === "visa_36lpa.jpg" ? "2px solid #ffcc00" : "1px solid rgba(255, 204, 0, 0.3)",
+                      boxShadow: src === "visa_36lpa.jpg" ? "0 4px 20px rgba(255, 204, 0, 0.35)" : "none",
                       backgroundColor: "#ffffff",
                       overflow: "hidden",
                       cursor: "pointer",
@@ -724,9 +746,28 @@ export default function Placements() {
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = "scale(1)";
-                      e.currentTarget.style.borderColor = "rgba(255, 204, 0, 0.3)";
+                      e.currentTarget.style.borderColor = src === "visa_36lpa.jpg" ? "#ffcc00" : "rgba(255, 204, 0, 0.3)";
                     }}
                   >
+                    {src === "visa_36lpa.jpg" && (
+                      <div style={{
+                        position: "absolute",
+                        top: "10px",
+                        left: "10px",
+                        background: "linear-gradient(135deg, #ffcc00, #ff9900)",
+                        color: "#000",
+                        fontWeight: "800",
+                        fontSize: "11px",
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        zIndex: 2
+                      }}>
+                        ⭐ 36 LPA • VISA
+                      </div>
+                    )}
                     <img src={`/placements/${src}`} alt={`Milestone poster ${idx + 1}`} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                   </div>
                 ))}
