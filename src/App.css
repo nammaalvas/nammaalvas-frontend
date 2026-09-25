@@ -41,8 +41,8 @@ body {
 
 /* Base content spacer ensuring zero navigation overlaps */
 .main-content {
-  padding-top: 110px;
-  min-height: calc(100vh - 110px);
+  padding-top: 86px;
+  min-height: calc(100vh - 86px);
   display: flex;
   flex-direction: column;
   align-items: center;

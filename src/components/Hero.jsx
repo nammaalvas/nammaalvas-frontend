@@ -20,7 +20,7 @@ export default function Hero() {
     color: "#ffffff",
     fontFamily: "'Poppins', sans-serif",
     textAlign: "center",
-    padding: "40px 20px 60px 20px",
+    padding: "clamp(12px, 2.5vw, 24px) 20px clamp(40px, 5vw, 60px) 20px",
     boxSizing: "border-box",
     overflow: "hidden"
   };
