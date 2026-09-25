@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { FaWhatsapp } from 'react-icons/fa';
 
 export default function WhatsAppButton() {
   const [isHovered, setIsHovered] = useState(false);
+  const location = useLocation();
+
+  // Hide floating action button on admin dashboard and all admin routes
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   const phone = "919448458334";
   const defaultMessage = encodeURIComponent("Hello! I have an enquiry regarding AIET Admissions.");

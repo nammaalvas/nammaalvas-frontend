@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaCalendarCheck } from 'react-icons/fa';
 
 export default function AppointmentButton() {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Hide floating action button on admin dashboard and all admin routes
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   const handleClick = () => {
     navigate('/admission?tab=appointment', { state: { tab: 'appointment' } });

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL } from '../config/api';
+import { API_BASE_URL, BACKUP_API_BASE_URL } from '../config/api';
 import { FaUserShield, FaLock, FaEnvelope, FaSignInAlt, FaExclamationCircle } from 'react-icons/fa';
 
 export default function AdminLogin() {
@@ -16,13 +16,29 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      let response;
+      try {
+        response = await fetch(`${API_BASE_URL}/api/admin/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: email.trim(), password }),
+        });
+      } catch (primaryErr) {
+        if (BACKUP_API_BASE_URL) {
+          console.warn('Primary API connection failed, retrying with backup endpoint:', BACKUP_API_BASE_URL);
+          response = await fetch(`${BACKUP_API_BASE_URL}/api/admin/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email.trim(), password }),
+          });
+        } else {
+          throw primaryErr;
+        }
+      }
 
       const data = await response.json();
 
@@ -35,7 +51,7 @@ export default function AdminLogin() {
       }
     } catch (err) {
       console.error('Admin login error:', err);
-      setError('Failed to connect to the authentication server.');
+      setError('Failed to connect to the authentication server. Please check your network connection or verify that the server is active.');
     } finally {
       setLoading(false);
     }
