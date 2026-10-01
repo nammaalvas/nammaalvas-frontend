@@ -79,22 +79,8 @@ const CAMPUS_LOCATIONS = [
     image: "/videos/tour_thumbnails/dept_corridor_360.jpg",
     type: "image",
     hotspots: [
-      { id: "video_tour", label: "360° Motion Tour", labelKn: "ಚಲನಚಿತ್ರ ಪ್ರವಾಸ", yaw: 1.2, pitch: 0.3 },
       { id: "courtyard", label: "Central Courtyard", labelKn: "ಕೇಂದ್ರ ಅಂಗಳ", yaw: -1.8, pitch: 0 }
     ]
-  },
-  {
-    id: "video_tour",
-    title: "4K 360° Motion Video Tour",
-    titleKn: "4K 360° ಲೈವ್ ಚಲನಚಿತ್ರ ಪ್ರವಾಸ",
-    desc: "Full 4K Ultra-HD Motion 360° Cinematic Campus Tour",
-    descKn: "ಪೂರ್ಣ 4K ಅಲ್ಟ್ರಾ ಎಚ್‌ಡಿ 360° ಸಿನೆಮ್ಯಾಟಿಕ್ ಕ್ಯಾಂಪಸ್ ಪ್ರವಾಸ",
-    coords: "13.0850° N, 74.9988° E",
-    elevation: "85m",
-    video: "/videos/virtual_tour_360.mp4",
-    poster: "/videos/tour_thumbnails/main_entrance_hd.jpg",
-    type: "video",
-    hotspots: []
   }
 ];
 
@@ -671,24 +657,6 @@ export default function VirtualTour() {
               ? "ಗೂಗಲ್ ಸ್ಟ್ರೀಟ್ ವ್ಯೂ ಮಾದರಿಯಲ್ಲಿ ಕ್ಯಾಂಪಸ್ ಅನ್ನು 360 ಡಿಗ್ರಿ ಸುತ್ತಲೂ ಕಂಟ್ರೋಲ್ ಮಾಡಿ. ಪ್ರತಿಯೊಂದು ವಿಭಾಗ ಮತ್ತು ಮೂಲಸೌಕರ್ಯಗಳನ್ನು ಸ್ಥಳ ಬದಲಾಯಿಸಿ ವೀಕ್ಷಿಸಿ."
               : "Explore AIET campus block-by-block with full 360° interactive street view mapping, hotspot navigation, orientation compass, and location switching."}
           </p>
-        </div>
-
-        {/* GPS Coordinates Badge */}
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          background: "linear-gradient(135deg, rgba(255, 204, 0, 0.15), rgba(255, 85, 0, 0.15))",
-          border: "1px solid rgba(255, 204, 0, 0.5)",
-          padding: isMobile ? "8px 14px" : "10px 18px",
-          borderRadius: "16px",
-          boxShadow: "0 8px 25px rgba(255, 153, 0, 0.15)"
-        }}>
-          <FaGlobe style={{ fontSize: isMobile ? "20px" : "24px", color: "#ffcc00" }} />
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: "11px", fontWeight: "800", color: "#ffffff", letterSpacing: "1px" }}>STREET VIEW 360°</span>
-            <span style={{ fontSize: "10px", color: "#ffcc00" }}>{activeLoc.coords}</span>
-          </div>
         </div>
       </div>
 

@@ -21,6 +21,8 @@ import WhatsAppButton from "./components/WhatsAppButton";
 import AppointmentButton from "./components/AppointmentButton";
 import AdminLogin from "./components/AdminLogin";
 import AdminDashboard from "./components/AdminDashboard";
+import ReceptionistLogin from "./components/ReceptionistLogin";
+import ReceptionistDashboard from "./components/ReceptionistDashboard";
 
 export default function App() {
   return (
@@ -53,6 +55,9 @@ export default function App() {
             <Route path="/virtual-tour" element={<VirtualTour />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/receptionist/login" element={<ReceptionistLogin />} />
+            <Route path="/receptionist/dashboard" element={<ReceptionistDashboard />} />
+            <Route path="/receptionist/offline-visitor" element={<ReceptionistDashboard defaultTab="register" />} />
           </Routes>
         </main>
         

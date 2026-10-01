@@ -1,15 +1,67 @@
-import React, { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBars, FaTimes, FaCaretDown, FaUserShield } from "react-icons/fa";
+import { FaBars, FaTimes, FaCaretDown } from "react-icons/fa";
 import logo from "../assets/logo.webp";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "../context/LanguageContext";
 
 export default function Navbar() {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isApplyDropdownOpen, setIsApplyDropdownOpen] = useState(false);
+
+  // Long-press detection to secretly access Admin Login
+  const pressTimerRef = useRef(null);
+  const isLongPressRef = useRef(false);
+  const touchStartPos = useRef({ x: 0, y: 0 });
+
+  const startPress = (e) => {
+    isLongPressRef.current = false;
+    if (e.touches && e.touches[0]) {
+      touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    pressTimerRef.current = setTimeout(() => {
+      isLongPressRef.current = true;
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        try { navigator.vibrate(80); } catch (_) {}
+      }
+      navigate('/admin/login');
+    }, 1500);
+  };
+
+  const cancelPress = () => {
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches && e.touches[0]) {
+      const dx = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
+      const dy = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
+      if (dx > 12 || dy > 12) {
+        cancelPress();
+      }
+    }
+  };
+
+  const handleLogoClick = (e) => {
+    if (isLongPressRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      isLongPressRef.current = false;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    };
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -48,8 +100,29 @@ export default function Navbar() {
       transition={{ duration: 0.8 }}
       className="navbar"
     >
-      <Link to="/" className="navbar-left">
-        <img src={logo} alt="AIET Logo" className="logo-img" />
+      <Link 
+        to="/" 
+        className="navbar-left"
+        onClick={handleLogoClick}
+        onMouseDown={startPress}
+        onMouseUp={cancelPress}
+        onMouseLeave={cancelPress}
+        onTouchStart={startPress}
+        onTouchEnd={cancelPress}
+        onTouchCancel={cancelPress}
+        onTouchMove={handleTouchMove}
+        onContextMenu={(e) => {
+          if (isLongPressRef.current || pressTimerRef.current) {
+            e.preventDefault();
+          }
+        }}
+        style={{
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          WebkitTouchCallout: "none"
+        }}
+      >
+        <img src={logo} alt="AIET Logo" className="logo-img" draggable={false} />
         <span className="logo-text">AIET</span>
       </Link>
 
@@ -68,30 +141,6 @@ export default function Navbar() {
 
       <div className="navbar-right">
         <LanguageSwitcher />
-
-        {/* Admin Portal Quick Link */}
-        <Link
-          to="/admin/login"
-          className="admin-nav-link"
-          style={{
-            color: "#ffcc00",
-            textDecoration: "none",
-            fontSize: "13px",
-            fontWeight: "600",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 14px",
-            height: "36px",
-            boxSizing: "border-box",
-            borderRadius: "20px",
-            border: "1px solid rgba(255, 204, 0, 0.4)",
-            background: "rgba(255, 204, 0, 0.08)",
-            whiteSpace: "nowrap"
-          }}
-        >
-          <FaUserShield /> {t("nav_admin")}
-        </Link>
 
         <div 
           style={{ position: 'relative' }}
@@ -225,14 +274,6 @@ export default function Navbar() {
             <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "12px", marginTop: "5px", display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
               <LanguageSwitcher />
             </div>
-
-            <Link
-              to="/admin/login"
-              style={{ color: "#ffcc00", fontWeight: "600", padding: "10px 0", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", borderTop: "1px solid rgba(255,255,255,0.1)", marginTop: "5px" }}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <FaUserShield /> {t("nav_admin_portal")}
-            </Link>
           </motion.div>
         )}
       </AnimatePresence>

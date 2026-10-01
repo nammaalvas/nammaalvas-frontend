@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { API_BASE_URL, BACKUP_API_BASE_URL } from '../config/api';
 import { FaUserShield, FaLock, FaEnvelope, FaSignInAlt, FaExclamationCircle } from 'react-icons/fa';
 
@@ -45,7 +45,11 @@ export default function AdminLogin() {
       if (data.success) {
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminUser', JSON.stringify(data.user));
-        navigate('/admin/dashboard');
+        if (data.user?.role === 'Receptionist') {
+          navigate('/receptionist/dashboard');
+        } else {
+          navigate('/admin/dashboard');
+        }
       } else {
         setError(data.message || 'Invalid credentials or unauthorized role.');
       }
@@ -210,10 +214,35 @@ export default function AdminLogin() {
           </button>
         </form>
 
+        {/* Receptionist Portal Link */}
+        <div style={{
+          marginTop: '20px',
+          textAlign: 'center'
+        }}>
+          <Link
+            to="/receptionist/login"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              color: '#ffcc00',
+              textDecoration: 'none',
+              fontSize: '12px',
+              fontWeight: '600',
+              background: 'rgba(255, 204, 0, 0.08)',
+              border: '1px solid rgba(255, 204, 0, 0.3)',
+              padding: '6px 14px',
+              borderRadius: '16px'
+            }}
+          >
+            📋 Front Desk / Receptionist Portal Login &rarr;
+          </Link>
+        </div>
+
         {/* Roles Badge Info */}
         <div style={{
-          marginTop: '30px',
-          paddingTop: '20px',
+          marginTop: '24px',
+          paddingTop: '18px',
           borderTop: '1px solid rgba(255, 255, 255, 0.1)',
           textAlign: 'center'
         }}>
@@ -221,7 +250,7 @@ export default function AdminLogin() {
             Permitted Access Roles
           </span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center' }}>
-            {['Principal', 'AO', 'Admission Staff', 'Super Admin'].map((role) => (
+            {['Principal', 'AO', 'Admission Staff', 'Super Admin', 'Receptionist'].map((role) => (
               <span key={role} style={{
                 fontSize: '11px',
                 background: 'rgba(128, 0, 0, 0.3)',
