@@ -2,15 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { API_BASE_URL, BACKUP_API_BASE_URL } from '../config/api';
 import { 
-  FaUserTie, 
-  FaLock, 
-  FaEnvelope, 
-  FaSignInAlt, 
   FaExclamationCircle, 
   FaEye, 
   FaEyeSlash,
-  FaArrowLeft,
-  FaClipboardList
+  FaArrowLeft
 } from 'react-icons/fa';
 import logo from '../assets/logo.webp';
 
@@ -68,11 +63,7 @@ export default function ReceptionistLogin() {
     }
   };
 
-  const fillDemoCredentials = () => {
-    setEmail('receptionist@aiet.org.in');
-    setPassword('Admin@123456');
-    setError('');
-  };
+
 
   return (
     <div style={{
@@ -148,9 +139,7 @@ export default function ReceptionistLogin() {
           </div>
 
           <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
+            display: 'inline-block',
             background: 'rgba(255, 204, 0, 0.12)',
             color: '#ffcc00',
             border: '1px solid rgba(255, 204, 0, 0.4)',
@@ -162,7 +151,7 @@ export default function ReceptionistLogin() {
             textTransform: 'uppercase',
             marginBottom: '10px'
           }}>
-            <FaClipboardList /> Front Desk Counselling
+            Front Desk Counselling
           </div>
 
           <h1 style={{
@@ -203,50 +192,48 @@ export default function ReceptionistLogin() {
         {/* Login Form */}
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
-            <label style={{ display: 'block', color: '#d4d4d4', fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>
+            <label style={{ display: 'block', color: '#d4d4d4', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>
               Reception Email Address
             </label>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <FaEnvelope style={{ position: 'absolute', left: '14px', color: '#ff9900', fontSize: '14px' }} />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="receptionist@aiet.org.in"
-                style={{
-                  width: '100%',
-                  padding: '12px 14px 12px 42px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  borderRadius: '12px',
-                  color: '#ffffff',
-                  fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s'
-                }}
-                onFocus={(e) => (e.target.style.borderColor = '#ff9900')}
-                onBlur={(e) => (e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)')}
-              />
-            </div>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter email address"
+              autoComplete="username"
+              style={{
+                width: '100%',
+                padding: '12px 14px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '12px',
+                color: '#ffffff',
+                fontSize: '14px',
+                outline: 'none',
+                boxSizing: 'border-box',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => (e.target.style.borderColor = '#ff9900')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)')}
+            />
           </div>
 
           <div>
-            <label style={{ display: 'block', color: '#d4d4d4', fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>
+            <label style={{ display: 'block', color: '#d4d4d4', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>
               Password
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <FaLock style={{ position: 'absolute', left: '14px', color: '#ff9900', fontSize: '14px' }} />
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
+                placeholder="Enter password"
+                autoComplete="current-password"
                 style={{
                   width: '100%',
-                  padding: '12px 42px 12px 42px',
+                  padding: '12px 42px 12px 14px',
                   background: 'rgba(255, 255, 255, 0.05)',
                   border: '1px solid rgba(255, 255, 255, 0.15)',
                   borderRadius: '12px',
@@ -292,56 +279,15 @@ export default function ReceptionistLogin() {
               fontSize: '14px',
               fontWeight: '700',
               cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
+              textAlign: 'center',
               boxShadow: '0 8px 25px rgba(255, 85, 0, 0.3)',
               opacity: loading ? 0.7 : 1,
               transition: 'transform 0.2s, box-shadow 0.2s'
             }}
           >
-            {loading ? (
-              <span>Authenticating...</span>
-            ) : (
-              <>
-                <FaSignInAlt /> Open Receptionist Portal
-              </>
-            )}
+            {loading ? 'Authenticating...' : 'Sign In to Receptionist Portal'}
           </button>
         </form>
-
-        {/* Demo Credentials Quick Fill */}
-        <div style={{
-          marginTop: '24px',
-          paddingTop: '18px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-          textAlign: 'center'
-        }}>
-          <p style={{ color: '#888', fontSize: '11px', margin: '0 0 10px 0' }}>
-            Front Desk Default Credentials:
-          </p>
-          <button
-            type="button"
-            onClick={fillDemoCredentials}
-            style={{
-              background: 'rgba(255, 204, 0, 0.08)',
-              border: '1px dashed rgba(255, 204, 0, 0.4)',
-              color: '#ffcc00',
-              padding: '6px 14px',
-              borderRadius: '16px',
-              fontSize: '12px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.2s'
-            }}
-          >
-            <FaUserTie /> Auto-Fill: receptionist@aiet.org.in
-          </button>
-        </div>
       </div>
     </div>
   );

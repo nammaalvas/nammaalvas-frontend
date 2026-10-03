@@ -10,10 +10,10 @@ const LOCAL_BACKEND_URL = 'http://localhost:5000';
 const isLocalhost = typeof window !== 'undefined' && 
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
-// Prefer valid env URL, or local backend if on localhost, otherwise Azure backend
-export const API_BASE_URL = validEnvUrl || (isLocalhost ? LOCAL_BACKEND_URL : AZURE_BACKEND_URL);
+// When testing on localhost, use local backend port 5000; in production use env/Azure URL
+export const API_BASE_URL = isLocalhost ? LOCAL_BACKEND_URL : (validEnvUrl || AZURE_BACKEND_URL);
 
 // Secondary fallback URL for resilient failover
 export const BACKUP_API_BASE_URL = (API_BASE_URL === LOCAL_BACKEND_URL) 
-  ? AZURE_BACKEND_URL 
-  : (isLocalhost ? LOCAL_BACKEND_URL : null);
+  ? (validEnvUrl || AZURE_BACKEND_URL) 
+  : LOCAL_BACKEND_URL;

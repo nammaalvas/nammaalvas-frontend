@@ -235,7 +235,7 @@ export default function AdminLogin() {
               borderRadius: '16px'
             }}
           >
-            📋 Front Desk / Receptionist Portal Login &rarr;
+            Front Desk / Receptionist Portal Login &rarr;
           </Link>
         </div>
 

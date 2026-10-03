@@ -216,6 +216,28 @@ export default function AdminDashboard() {
             </div>
 
             <button
+              onClick={() => navigate('/receptionist/dashboard')}
+              style={{
+                background: 'rgba(255, 153, 0, 0.15)',
+                border: '1px solid rgba(255, 153, 0, 0.4)',
+                color: '#ffcc00',
+                padding: '10px 16px',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontWeight: '600',
+                fontSize: '13px',
+                transition: '0.3s'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 153, 0, 0.25)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 153, 0, 0.15)')}
+            >
+              <FaBuilding /> Reception Desk / Apply Offline Visitor
+            </button>
+
+            <button
               onClick={handleLogout}
               style={{
                 background: 'rgba(128, 0, 0, 0.2)',

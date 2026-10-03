@@ -64,8 +64,14 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [currentUser, setCurrentUser] = useState(null);
+  const searchParams = new URLSearchParams(location.search);
+  const tabQuery = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState(
-    location.pathname === '/receptionist/offline-visitor' ? 'register' : (defaultTab || 'register')
+    location.pathname === '/receptionist/offline-visitor' || tabQuery === 'apply' || tabQuery === 'register'
+      ? 'register'
+      : tabQuery === 'queue'
+      ? 'queue'
+      : (defaultTab || 'register')
   );
 
   // --- Registration Form State ---
@@ -387,7 +393,7 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
               </span>
             </div>
             <p style={{ margin: '2px 0 0 0', color: '#a3a3a3', fontSize: '12px' }}>
-              Visitor Registration & Real-Time Counselling Management
+              Apply Offline Visitors & Real-Time Counselling Management
             </p>
           </div>
         </div>
@@ -468,8 +474,8 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
           type="button"
           onClick={() => setActiveTab('register')}
           style={{
-            padding: '10px 22px',
-            borderRadius: '14px',
+            padding: '11px 24px',
+            borderRadius: '12px',
             fontSize: '14px',
             fontWeight: '700',
             cursor: 'pointer',
@@ -484,15 +490,15 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
             transition: 'all 0.2s'
           }}
         >
-          <FaBolt style={{ color: '#ffcc00' }} /> On-Spot Offline Visitor Counselling
+          <FaUserPlus /> Apply Offline Visitor
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('queue')}
           style={{
-            padding: '10px 22px',
-            borderRadius: '14px',
+            padding: '11px 24px',
+            borderRadius: '12px',
             fontSize: '14px',
             fontWeight: '700',
             cursor: 'pointer',
@@ -507,7 +513,7 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
             transition: 'all 0.2s'
           }}
         >
-          <FaListUl /> Counselling Queue & Status
+          <FaListUl /> Offline Counselling Queue & Records
           {stats.pending > 0 && (
             <span style={{
               background: '#f59e0b',
@@ -539,44 +545,28 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
             padding: '28px',
             boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <div style={{ marginBottom: '20px' }}>
               <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #ff9900, #ff5500)',
-                color: '#000000',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-                boxShadow: '0 4px 15px rgba(255, 153, 0, 0.3)'
+                display: 'inline-block',
+                background: 'rgba(255, 204, 0, 0.12)',
+                color: '#ffcc00',
+                border: '1px solid rgba(255, 204, 0, 0.3)',
+                padding: '4px 12px',
+                borderRadius: '8px',
+                fontSize: '11px',
+                fontWeight: '700',
+                letterSpacing: '0.8px',
+                textTransform: 'uppercase',
+                marginBottom: '8px'
               }}>
-                <FaBolt />
+                Front Desk Counter • Offline Visitor Application
               </div>
-              <div>
-                <div style={{
-                  display: 'inline-block',
-                  background: 'rgba(255, 204, 0, 0.12)',
-                  color: '#ffcc00',
-                  border: '1px solid rgba(255, 204, 0, 0.3)',
-                  padding: '2px 8px',
-                  borderRadius: '10px',
-                  fontSize: '10.5px',
-                  fontWeight: '700',
-                  letterSpacing: '0.8px',
-                  textTransform: 'uppercase',
-                  marginBottom: '4px'
-                }}>
-                  FRONT DESK WALK-IN COUNTER
-                </div>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#ffffff' }}>
-                  On-Spot Offline Visitor Counselling
-                </h2>
-                <p style={{ margin: '2px 0 0 0', color: '#a3a3a3', fontSize: '12px' }}>
-                  Apply for on-spot walk-in visitors. An official confirmation email with allotted slot number and timing will be dispatched immediately.
-                </p>
-              </div>
+              <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '0 0 6px 0', color: '#ffffff' }}>
+                Apply Offline Visitor
+              </h2>
+              <p style={{ margin: 0, color: '#a3a3a3', fontSize: '13px', lineHeight: '1.5' }}>
+                Fill in visitor details to register an offline walk-in counselling session. An official confirmation email with the allotted slot number and timing will be dispatched immediately to the visitor.
+              </p>
             </div>
 
             {registrationError && (
@@ -586,14 +576,10 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
                 borderRadius: '12px',
                 padding: '12px 14px',
                 marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
                 color: '#f87171',
                 fontSize: '13px'
               }}>
-                <FaExclamationTriangle />
-                <span>{registrationError}</span>
+                {registrationError}
               </div>
             )}
 
@@ -606,9 +592,8 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
                 marginBottom: '24px',
                 boxShadow: '0 8px 30px rgba(16, 185, 129, 0.2)'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <FaCheckCircle style={{ color: '#10b981', fontSize: '20px' }} />
-                  <strong style={{ fontSize: '16px', color: '#ffffff' }}>On-Spot Counselling Confirmed!</strong>
+                <div style={{ marginBottom: '8px' }}>
+                  <strong style={{ fontSize: '16px', color: '#ffffff' }}>Visitor Registered Successfully!</strong>
                 </div>
 
                 <div style={{
@@ -635,7 +620,7 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
                 </div>
 
                 <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#d1fae5', lineHeight: '1.5' }}>
-                  Confirmation email with <strong>{registrationSuccess.slotNumber}</strong>, timing <strong>{registrationSuccess.timeSlot}</strong>, and venue directions has been delivered to <strong>{registrationSuccess.email}</strong>.
+                  Confirmation email with <strong>{registrationSuccess.slotNumber}</strong>, timing <strong>{registrationSuccess.timeSlot}</strong>, and campus venue directions has been sent to <strong>{registrationSuccess.email}</strong>.
                 </p>
 
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -651,13 +636,10 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
                       fontSize: '13px',
                       fontWeight: '700',
                       cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
                       boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
                     }}
                   >
-                    <FaPrint /> Print On-Spot Token Slip
+                    Print Token Slip
                   </button>
                   <button
                     type="button"
@@ -677,103 +659,94 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
                       cursor: 'pointer'
                     }}
                   >
-                    + Apply For Next Visitor
+                    + Register Another Visitor
                   </button>
                 </div>
               </div>
             )}
 
             <form onSubmit={handleRegisterVisitor} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Auto-Configured Date & Slot Badge */}
+              {/* Date & Slot Banner */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
                 gap: '12px',
-                background: 'rgba(255, 204, 0, 0.05)',
+                background: 'rgba(255, 255, 255, 0.03)',
                 border: '1px solid rgba(255, 204, 0, 0.25)',
                 borderRadius: '14px',
                 padding: '14px 18px',
               }}>
                 <div>
-                  <span style={{ fontSize: '11px', color: '#ffcc00', textTransform: 'uppercase', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <FaCalendarAlt /> Date (Today)
+                  <span style={{ fontSize: '11px', color: '#ffcc00', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.5px' }}>
+                    Date (Today)
                   </span>
                   <div style={{ color: '#ffffff', fontWeight: '700', fontSize: '14px', marginTop: '3px' }}>
                     {new Date().toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
                   </div>
-                  <span style={{ fontSize: '11px', color: '#888' }}>Defaulted to {todayStr}</span>
+                  <span style={{ fontSize: '11px', color: '#888' }}>{todayStr}</span>
                 </div>
 
                 <div>
-                  <span style={{ fontSize: '11px', color: '#ffcc00', textTransform: 'uppercase', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <FaBolt /> Auto Slot Number
+                  <span style={{ fontSize: '11px', color: '#ffcc00', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.5px' }}>
+                    Allotted Slot
                   </span>
                   <div style={{ color: '#ffcc00', fontWeight: '800', fontSize: '16px', marginTop: '3px' }}>
                     {autoGeneratedSlot}
                   </div>
-                  <span style={{ fontSize: '11px', color: '#10b981', fontWeight: '600' }}>⚡ System Auto-Generated</span>
+                  <span style={{ fontSize: '11px', color: '#10b981', fontWeight: '600' }}>Auto-assigned</span>
                 </div>
               </div>
 
               {/* Row 1: Name & Phone */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
                 <div>
-                  <label style={{ display: 'block', color: '#e5e5e5', fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', color: '#e5e5e5', fontSize: '13px', fontWeight: '600', marginBottom: '6px' }}>
                     Visitor / Student Name *
                   </label>
-                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                    <FaIdBadge style={{ position: 'absolute', left: '12px', color: '#ff9900', fontSize: '13px' }} />
-                    <input
-                      type="text"
-                      required
-                      value={visitorName}
-                      onChange={(e) => setVisitorName(e.target.value)}
-                      placeholder="e.g. Rahul Sharma"
-                      style={inputStyle}
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={visitorName}
+                    onChange={(e) => setVisitorName(e.target.value)}
+                    placeholder="Enter full name"
+                    style={inputStyle}
+                  />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', color: '#e5e5e5', fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', color: '#e5e5e5', fontSize: '13px', fontWeight: '600', marginBottom: '6px' }}>
                     Contact Phone Number *
                   </label>
-                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                    <FaPhoneAlt style={{ position: 'absolute', left: '12px', color: '#ff9900', fontSize: '13px' }} />
-                    <input
-                      type="tel"
-                      required
-                      value={visitorPhone}
-                      onChange={(e) => setVisitorPhone(e.target.value)}
-                      placeholder="+91 98765 43210"
-                      style={inputStyle}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 2: Email */}
-              <div>
-                <label style={{ display: 'block', color: '#e5e5e5', fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
-                  Visitor Email Address * (For Confirmation & Slot Delivery)
-                </label>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <FaEnvelope style={{ position: 'absolute', left: '12px', color: '#ff9900', fontSize: '13px' }} />
                   <input
-                    type="email"
+                    type="tel"
                     required
-                    value={visitorEmail}
-                    onChange={(e) => setVisitorEmail(e.target.value)}
-                    placeholder="visitor.student@gmail.com"
+                    value={visitorPhone}
+                    onChange={(e) => setVisitorPhone(e.target.value)}
+                    placeholder="e.g. 9876543210"
                     style={inputStyle}
                   />
                 </div>
               </div>
 
+              {/* Row 2: Email */}
+              <div>
+                <label style={{ display: 'block', color: '#e5e5e5', fontSize: '13px', fontWeight: '600', marginBottom: '6px' }}>
+                  Visitor Email Address * (Confirmation mail will be sent here)
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={visitorEmail}
+                  onChange={(e) => setVisitorEmail(e.target.value)}
+                  placeholder="e.g. visitor@gmail.com"
+                  style={inputStyle}
+                />
+              </div>
+
               {/* Row 3: Time Slot */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ color: '#e5e5e5', fontSize: '12px', fontWeight: '600' }}>
+                  <label style={{ color: '#e5e5e5', fontSize: '13px', fontWeight: '600' }}>
                     Reporting Time / Time Slot *
                   </label>
                   <button
@@ -786,16 +759,14 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
                       background: 'rgba(255, 204, 0, 0.1)',
                       border: '1px solid rgba(255, 204, 0, 0.3)',
                       color: '#ffcc00',
-                      padding: '2px 8px',
-                      borderRadius: '8px',
+                      padding: '3px 10px',
+                      borderRadius: '6px',
                       fontSize: '11px',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px'
+                      fontWeight: '600',
+                      cursor: 'pointer'
                     }}
                   >
-                    <FaBolt style={{ fontSize: '10px' }} /> Auto Current Window
+                    Set Current Time
                   </button>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -827,7 +798,7 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
                     value={customTime}
                     onChange={(e) => setCustomTime(e.target.value)}
                     placeholder="Or enter custom time (e.g. 11:15 AM)"
-                    style={{ ...inputStyle, paddingLeft: '14px' }}
+                    style={inputStyle}
                   />
                 </div>
               </div>
@@ -842,26 +813,17 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
                   background: 'linear-gradient(135deg, #ff9900, #ff5500)',
                   color: '#000000',
                   border: 'none',
-                  borderRadius: '14px',
+                  borderRadius: '12px',
                   fontSize: '15px',
-                  fontWeight: '800',
+                  fontWeight: '700',
                   cursor: registering ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
+                  textAlign: 'center',
                   boxShadow: '0 8px 25px rgba(255, 85, 0, 0.35)',
                   opacity: registering ? 0.7 : 1,
                   transition: 'all 0.2s'
                 }}
               >
-                {registering ? (
-                  <span>Registering & Generating Slot...</span>
-                ) : (
-                  <>
-                    <FaBolt /> Register Visitor & Allot Slot
-                  </>
-                )}
+                {registering ? 'Registering & Sending Confirmation Mail...' : 'Apply Offline Visitor & Dispatch Confirmation Mail'}
               </button>
             </form>
           </div>
@@ -918,8 +880,7 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
               <div style={{ fontSize: '28px', fontWeight: '900', color: '#ffcc00', margin: '4px 0' }}>
                 {autoGeneratedSlot}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: '#ffffff', fontSize: '13px', fontWeight: '600' }}>
-                <FaClock style={{ color: '#ff9900' }} />
+              <div style={{ color: '#ffffff', fontSize: '13px', fontWeight: '600' }}>
                 {customTime || timeSlot}
               </div>
             </div>
@@ -948,7 +909,7 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '6px' }}>
                 <span style={{ color: '#a3a3a3' }}>Slot Status:</span>
-                <span style={{ color: '#10b981', fontWeight: '700' }}>⚡ Auto-Generated</span>
+                <span style={{ color: '#10b981', fontWeight: '700' }}>Auto-assigned</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '4px' }}>
                 <span style={{ color: '#a3a3a3' }}>Queue Status:</span>
@@ -960,7 +921,7 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
                   fontSize: '11px',
                   fontWeight: '700'
                 }}>
-                  ⏳ PENDING QUEUE
+                  Pending
                 </span>
               </div>
             </div>
@@ -974,7 +935,7 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
               color: '#888',
               lineHeight: '1.5'
             }}>
-              📧 Upon registration, an official AIET confirmation email with this allotted slot ({autoGeneratedSlot}), timing ({customTime || timeSlot}), and venue location instructions will be automatically dispatched to the visitor's inbox.
+              Upon registration, an official AIET confirmation email with this allotted slot ({autoGeneratedSlot}), timing ({customTime || timeSlot}), and campus venue instructions will be automatically dispatched to the visitor's inbox.
             </div>
           </div>
         </div>
@@ -1038,16 +999,16 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
               {/* Type Filter */}
               <div style={{ display: 'flex', background: 'rgba(255, 255, 255, 0.06)', borderRadius: '10px', padding: '3px' }}>
                 <FilterButton active={typeFilter === 'all'} onClick={() => setTypeFilter('all')}>All</FilterButton>
-                <FilterButton active={typeFilter === 'offline'} onClick={() => setTypeFilter('offline')}>🏢 Offline</FilterButton>
-                <FilterButton active={typeFilter === 'online'} onClick={() => setTypeFilter('online')}>🌐 Online</FilterButton>
+                <FilterButton active={typeFilter === 'offline'} onClick={() => setTypeFilter('offline')}>Offline</FilterButton>
+                <FilterButton active={typeFilter === 'online'} onClick={() => setTypeFilter('online')}>Online</FilterButton>
               </div>
 
               {/* Status Filter */}
               <div style={{ display: 'flex', background: 'rgba(255, 255, 255, 0.06)', borderRadius: '10px', padding: '3px' }}>
                 <FilterButton active={statusFilter === 'all'} onClick={() => setStatusFilter('all')}>All</FilterButton>
-                <FilterButton active={statusFilter === 'pending'} onClick={() => setStatusFilter('pending')}>⏳ Pending</FilterButton>
-                <FilterButton active={statusFilter === 'completed'} onClick={() => setStatusFilter('completed')}>✅ Completed</FilterButton>
-                <FilterButton active={statusFilter === 'cancelled'} onClick={() => setStatusFilter('cancelled')}>❌ Cancelled</FilterButton>
+                <FilterButton active={statusFilter === 'pending'} onClick={() => setStatusFilter('pending')}>Pending</FilterButton>
+                <FilterButton active={statusFilter === 'completed'} onClick={() => setStatusFilter('completed')}>Completed</FilterButton>
+                <FilterButton active={statusFilter === 'cancelled'} onClick={() => setStatusFilter('cancelled')}>Cancelled</FilterButton>
               </div>
 
               {/* Date Filter */}
@@ -1090,6 +1051,28 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
               >
                 <FaSync style={{ animation: queueLoading ? 'spin 1s linear infinite' : 'none' }} /> Refresh
               </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('register')}
+                title="Open Offline Visitor Application Form"
+                style={{
+                  background: 'linear-gradient(135deg, #ff9900, #ff5500)',
+                  color: '#000000',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  boxShadow: '0 4px 15px rgba(255, 153, 0, 0.3)'
+                }}
+              >
+                <FaUserPlus /> Apply Offline Visitor
+              </button>
             </div>
           </div>
 
@@ -1110,9 +1093,29 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
               <div style={{ padding: '60px 20px', textAlign: 'center', color: '#a3a3a3' }}>
                 <FaHourglassHalf style={{ fontSize: '32px', marginBottom: '12px', color: '#ff9900' }} />
                 <h3 style={{ margin: '0 0 6px 0', color: '#ffffff' }}>No Counselling Appointments Found</h3>
-                <p style={{ margin: 0, fontSize: '13px' }}>
-                  No sessions match the selected filters. Use the "New Offline Visitor Check-In" tab to add visitors.
+                <p style={{ margin: '0 0 16px 0', fontSize: '13px' }}>
+                  No sessions match the selected filters. Use the "Apply Offline Visitor" page to register walk-in visitors.
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('register')}
+                  style={{
+                    padding: '10px 20px',
+                    background: 'linear-gradient(135deg, #ff9900, #ff5500)',
+                    color: '#000000',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 15px rgba(255, 153, 0, 0.3)'
+                  }}
+                >
+                  <FaUserPlus /> Apply Offline Visitor
+                </button>
               </div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
@@ -1295,13 +1298,13 @@ export default function ReceptionistDashboard({ defaultTab = 'register' }) {
                                 }}
                               >
                                 <option value="pending" style={{ background: '#18181b', color: '#fbbf24' }}>
-                                  ⏳ Pending
+                                  Pending
                                 </option>
                                 <option value="completed" style={{ background: '#18181b', color: '#34d399' }}>
-                                  ✓ Completed
+                                  Completed
                                 </option>
                                 <option value="cancelled" style={{ background: '#18181b', color: '#f87171' }}>
-                                  ✕ Cancelled
+                                  Cancelled
                                 </option>
                               </select>
                             </div>
@@ -1489,24 +1492,24 @@ function FilterButton({ active, onClick, children }) {
 
 const inputStyle = {
   width: '100%',
-  padding: '11px 12px 11px 36px',
+  padding: '12px 14px',
   background: 'rgba(255, 255, 255, 0.05)',
   border: '1px solid rgba(255, 255, 255, 0.15)',
-  borderRadius: '12px',
+  borderRadius: '10px',
   color: '#ffffff',
-  fontSize: '13px',
+  fontSize: '14px',
   outline: 'none',
   boxSizing: 'border-box'
 };
 
 const selectStyle = {
   width: '100%',
-  padding: '11px 12px',
+  padding: '12px 14px',
   background: '#1a1a1a',
   border: '1px solid rgba(255, 255, 255, 0.15)',
-  borderRadius: '12px',
+  borderRadius: '10px',
   color: '#ffffff',
-  fontSize: '13px',
+  fontSize: '14px',
   outline: 'none',
   boxSizing: 'border-box'
 };
